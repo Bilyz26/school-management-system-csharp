@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 
-
 namespace prj_ForYou
 {
     public partial class frmraaf : Form
@@ -18,10 +17,6 @@ namespace prj_ForYou
         {
             InitializeComponent();
         }
-        SqlDataAdapter da_matier = new SqlDataAdapter("select*from matier ", MemberGlobal.cnxstring);
-        DataSet Ds = new DataSet();
-
-
 
         private void btnQuiter_Click(object sender, EventArgs e)
         {
@@ -35,84 +30,76 @@ namespace prj_ForYou
             g.MaximumSize = new Size(574, 286);
             foreach (Control c in g.Controls)
             {
-                if (c is Button)
+                if (c is Button && c.Name == "btnQuiter")
                 {
-                    if (c.Name == "btnQuiter")
-                    {
-                        c.Hide();
-                    }
+                    c.Hide();
                 }
             }
         }
-        SqlDataAdapter da_Annee = new SqlDataAdapter("select*from Annee", MemberGlobal.cnxstring);
+
         private void frmraaf_Load(object sender, EventArgs e)
         {
-            
-            da_matier.Fill(Ds, "m");
+            DataTable dtMatier = MemberGlobal.rechercher("select * from matier");
             cmbmatier.SelectedIndexChanged -= new EventHandler(cmbmatier_SelectedIndexChanged);
-            cmbmatier.DataSource = Ds.Tables["m"];
+            cmbmatier.DataSource = dtMatier;
             cmbmatier.ValueMember = "idmat";
             cmbmatier.SelectedIndexChanged += new EventHandler(cmbmatier_SelectedIndexChanged);
-            Ds.Tables.Add("n");
-            Ds.Tables.Add("p");
-            Ds.Tables.Add("g");
-            da_Annee.Fill(Ds, "a");
-            cmbAnnee.DataSource = Ds.Tables["a"];
+
+            DataTable dtAnnee = MemberGlobal.rechercher("select * from Annee");
+            cmbAnnee.DataSource = dtAnnee;
             cmbAnnee.ValueMember = "annee";
+
             dgvelevegrp.Hide();
             dgv.SelectionChanged += new EventHandler(dgv_SelectionChanged);
-
-
         }
-        SqlDataAdapter da_Niv = new SqlDataAdapter("", MemberGlobal.cnxstring);
-        SqlDataAdapter da_prof = new SqlDataAdapter("", MemberGlobal.cnxstring);
 
         private void cmbmatier_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["n"].Clear();
-            da_Niv.SelectCommand.CommandText = "select*from niveauMat where #idmat= " + "'" + cmbmatier.Text + "'";
-            da_Niv.Fill(Ds, "n");
+            DataTable dtNiv = MemberGlobal.rechercher("select * from niveauMat where #idmat=@idmat",
+                new SqlParameter("@idmat", cmbmatier.Text));
 
-            if (Ds.Tables["n"].Rows.Count != 0)
+            if (dtNiv.Rows.Count != 0)
             {
-
-
-
                 cmbniveau.SelectedIndexChanged -= new EventHandler(cmbniveau_SelectedIndexChanged);
-                cmbniveau.DataSource = Ds.Tables["n"];
+                cmbniveau.DataSource = dtNiv;
                 cmbniveau.ValueMember = "nomMat";
                 cmbniveau.SelectedIndexChanged += new EventHandler(cmbniveau_SelectedIndexChanged);
             }
-            Ds.Tables["p"].Clear();
-            da_prof.SelectCommand.CommandText = "select*from prof  where #idmat= " + "'" + cmbmatier.Text + "'";
-            da_prof.Fill(Ds, "p");
-            if (Ds.Tables["p"].Rows.Count != 0)
-            {
 
-                cmbprof.DataSource = Ds.Tables["p"];
+            DataTable dtProf = MemberGlobal.rechercher("select * from prof where #idmat=@idmat",
+                new SqlParameter("@idmat", cmbmatier.Text));
+
+            if (dtProf.Rows.Count != 0)
+            {
+                cmbprof.DataSource = dtProf;
                 cmbprof.ValueMember = "nomprof";
             }
         }
 
         private void cmbGrp_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DataTable dt = MemberGlobal.rechercher(string.Format(" select count(#nom) from Raff where #nomprof='{0}'and #codegrp='{1}' and annee='{2}'", cmbprof.Text, cmbGrp.Text,cmbAnnee.Text));
-            lblnombreeleve.Text = dt.Rows[0][0].ToString();
+            DataTable dt = MemberGlobal.rechercher(
+                "select count(#nom) from Raff where #nomprof=@prof and #codegrp=@grp and annee=@annee",
+                new SqlParameter("@prof", cmbprof.Text),
+                new SqlParameter("@grp", cmbGrp.Text),
+                new SqlParameter("@annee", cmbAnnee.Text));
+
+            if (dt.Rows.Count != 0)
+            {
+                lblnombreeleve.Text = dt.Rows[0][0].ToString();
+            }
         }
-        SqlDataAdapter da_grp = new SqlDataAdapter("", MemberGlobal.cnxstring);
 
         private void cmbniveau_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["g"].Clear();
-            da_grp.SelectCommand.CommandText = string.Format("select * from grp where #idmat='{0}'and #codeNiv='{1}'", cmbmatier.Text, cmbniveau.Text); 
+            DataTable dtGrp = MemberGlobal.rechercher("select * from grp where #idmat=@idmat and #codeNiv=@codeNiv",
+                new SqlParameter("@idmat", cmbmatier.Text),
+                new SqlParameter("@codeNiv", cmbniveau.Text));
 
-            da_grp.Fill(Ds, "g");
-
-            if (Ds.Tables["g"].Rows.Count != 0)
+            if (dtGrp.Rows.Count != 0)
             {
-
                 cmbGrp.SelectedIndexChanged -= new EventHandler(cmbGrp_SelectedIndexChanged);
-                cmbGrp.DataSource = Ds.Tables["g"];
+                cmbGrp.DataSource = dtGrp;
                 cmbGrp.ValueMember = "codegrp";
                 cmbGrp.SelectedIndexChanged += new EventHandler(cmbGrp_SelectedIndexChanged);
             }
@@ -120,8 +107,10 @@ namespace prj_ForYou
 
         private void btnrechercher_Click(object sender, EventArgs e)
         {
+            DataTable dt = MemberGlobal.rechercher(
+                "select #nom as 'Nom d élève',#codegrp as 'Group',annee as 'Année d étude',#nomprof as 'Nom de Professeur' from Raff where #nom=@nom",
+                new SqlParameter("@nom", txtnomprenomeleve.Text));
 
-            DataTable dt = MemberGlobal.rechercher(string.Format(" select #nom as'Nom d élève',#codegrp as'Group',annee as'Année d étude' ,#nomprof as'Nom de Professeur' from Raff where #nom='{0}'", txtnomprenomeleve.Text));
             if (dt.Rows.Count != 0)
             {
                 dgv.Hide();
@@ -133,144 +122,178 @@ namespace prj_ForYou
                 dgvelevegrp.Location = new Point(32, 296);
                 dgvelevegrp.Show();
             }
-
-
         }
 
         private void dgv_SelectionChanged(object sender, EventArgs e)
         {
-
-            txtnomprenomeleve.Text = dgv.CurrentRow.Cells[0].Value.ToString();
-          
+            if (dgv.CurrentRow != null && dgv.CurrentRow.Cells.Count > 0)
+            {
+                txtnomprenomeleve.Text = Convert.ToString(dgv.CurrentRow.Cells[0].Value);
+            }
         }
 
         private void btnRchercherEleve_Click(object sender, EventArgs e)
         {
-          
+            DataTable dt = MemberGlobal.rechercher(
+                "select nom as 'Nom et Prenom',#cin as 'CIN', qui as 'Le propriétaire de Cin',tele as 'numéro de telephone',frinsc as 'Frais d inscription',dateD as 'date d inscription' from inscStd where #cin=@cin or nom like @nomLike",
+                new SqlParameter("@cin", txtcin.Text),
+                new SqlParameter("@nomLike", txtcin.Text + "%"));
 
-            DataTable dt = MemberGlobal.rechercher(string.Format("select nom as'Nom et Prenom',#cin as'CIN', qui as'Le propriétaire de Cin',tele as'numéro de telephone',frinsc as'Frais d inscription',dateD as'date  d inscription' from inscStd where #cin='{0}' or nom like '{1}%' ", txtcin.Text,txtcin.Text));
             if (dt.Rows.Count != 0)
             {
                 dgvelevegrp.Hide();
                 dgv.Show();
                 dgv.DataSource = dt;
-               
-
             }
             else
-            { MemberGlobal.messageBox(new frmMessagboxFaile(),"y'a aucun élève avec les donnée vous saisire"); }
+            {
+                MemberGlobal.messageBox(new frmMessagboxFaile(), "y'a aucun élève avec les donnée vous saisire");
+            }
         }
 
         private void dgvelevegrp_SelectionChanged(object sender, EventArgs e)
         {
-            DataTable dt = MemberGlobal.rechercher(string.Format("select * from grp where codegrp='{0}'", dgvelevegrp.CurrentRow.Cells[1].Value.ToString()));
+            if (dgvelevegrp.CurrentRow == null || dgvelevegrp.CurrentRow.Cells.Count < 4) return;
+
+            string grpCode = Convert.ToString(dgvelevegrp.CurrentRow.Cells[1].Value);
+            DataTable dt = MemberGlobal.rechercher("select * from grp where codegrp=@codegrp",
+                new SqlParameter("@codegrp", grpCode));
+
             if (dt.Rows.Count != 0)
             {
-                txtnomprenomeleve.Text = dgvelevegrp.CurrentRow.Cells[0].Value.ToString();
+                txtnomprenomeleve.Text = Convert.ToString(dgvelevegrp.CurrentRow.Cells[0].Value);
                 cmbmatier.Text = dt.Rows[0][1].ToString();
                 cmbniveau.Text = dt.Rows[0][2].ToString();
-                cmbGrp.Text = dgvelevegrp.CurrentRow.Cells[1].Value.ToString();
-                cmbprof.Text = dgvelevegrp.CurrentRow.Cells[3].Value.ToString();
-                cmbAnnee.Text = dgvelevegrp.CurrentRow.Cells[2].Value.ToString();
-                DataTable dtcount = MemberGlobal.rechercher(string.Format(" select count(#nom) from Raff where #nomprof='{0}'and #codegrp='{1}'", cmbprof.Text, cmbGrp.Text));
-                lblnombreeleve.Text = dtcount.Rows[0][0].ToString();
-              
-            }
+                cmbGrp.Text = grpCode;
+                cmbprof.Text = Convert.ToString(dgvelevegrp.CurrentRow.Cells[3].Value);
+                cmbAnnee.Text = Convert.ToString(dgvelevegrp.CurrentRow.Cells[2].Value);
 
+                DataTable dtcount = MemberGlobal.rechercher(
+                    "select count(#nom) from Raff where #nomprof=@prof and #codegrp=@grp",
+                    new SqlParameter("@prof", cmbprof.Text),
+                    new SqlParameter("@grp", cmbGrp.Text));
+
+                if (dtcount.Rows.Count != 0)
+                {
+                    lblnombreeleve.Text = dtcount.Rows[0][0].ToString();
+                }
+            }
         }
 
         private void btnAjouter_Click(object sender, EventArgs e)
         {
+            DataTable dt = MemberGlobal.rechercher(
+                "select * from Raff where #nomprof=@prof and #codegrp=@grp and #nom=@nom",
+                new SqlParameter("@prof", cmbprof.Text),
+                new SqlParameter("@grp", cmbGrp.Text),
+                new SqlParameter("@nom", txtnomprenomeleve.Text));
 
-            DataTable dt = MemberGlobal.rechercher(string.Format(" select * from Raff where #nomprof='{0}'and #codegrp='{1}' and #nom='{2}'",cmbprof.Text,cmbGrp.Text,txtnomprenomeleve.Text));
             if (dt.Rows.Count == 0)
             {
-                if (cmbGrp.Text != "" && cmbprof.Text != "" && txtnomprenomeleve.Text != "")
+                if (!string.IsNullOrWhiteSpace(cmbGrp.Text) &&
+                    !string.IsNullOrWhiteSpace(cmbprof.Text) &&
+                    !string.IsNullOrWhiteSpace(txtnomprenomeleve.Text))
                 {
-                    bool i = MemberGlobal.Insert_Edit_Delete(string.Format("insert into Raff values('{0}','{1}','{2}','{3}')", txtnomprenomeleve.Text, cmbGrp.Text, cmbAnnee.Text, cmbprof.Text));
-                    if (i == true)
+                    bool i = MemberGlobal.Insert_Edit_Delete(
+                        "insert into Raff values(@nom,@grp,@annee,@prof)",
+                        new SqlParameter("@nom", txtnomprenomeleve.Text),
+                        new SqlParameter("@grp", cmbGrp.Text),
+                        new SqlParameter("@annee", cmbAnnee.Text),
+                        new SqlParameter("@prof", cmbprof.Text));
+
+                    if (i)
                     {
-                       
                         MemberGlobal.messageBox(new frmMssageboxSucces(), "Ajouter avec succée");
-
                     }
-
                 }
                 else
                 {
-                   
-                  
                     MemberGlobal.messageBox(new frmMessagboxFaile(), "Vous avez oublié un ou plus champs vide");
-
                 }
-
-
-
             }
             else
             {
-               
-                MemberGlobal.messageBox(new frmMessagboxFaile(),"il existe deja" );
-
+                MemberGlobal.messageBox(new frmMessagboxFaile(), "il existe deja");
             }
         }
 
         private void btnmodifier_Click(object sender, EventArgs e)
         {
-            DataTable dt = MemberGlobal.rechercher(string.Format("Select*from Raff where #nom='{0}' and #codegrp='{1}' and #nomprof='{2}'", dgvelevegrp.CurrentRow.Cells[0].Value.ToString(), dgvelevegrp.CurrentRow.Cells[1].Value.ToString(), dgvelevegrp.CurrentRow.Cells[3].Value.ToString()));
+            if (dgvelevegrp.CurrentRow == null) return;
+
+            string oldNom = Convert.ToString(dgvelevegrp.CurrentRow.Cells[0].Value);
+            string oldGrp = Convert.ToString(dgvelevegrp.CurrentRow.Cells[1].Value);
+            string oldProf = Convert.ToString(dgvelevegrp.CurrentRow.Cells[3].Value);
+
+            DataTable dt = MemberGlobal.rechercher(
+                "select * from Raff where #nom=@nom and #codegrp=@grp and #nomprof=@prof",
+                new SqlParameter("@nom", oldNom),
+                new SqlParameter("@grp", oldGrp),
+                new SqlParameter("@prof", oldProf));
+
             if (dt.Rows.Count != 0)
             {
-                bool i = MemberGlobal.Insert_Edit_Delete(string.Format("Update Raff set  #nom='{0}' , #codegrp='{1}' ,annee='{2}' ,#nomprof='{3}' " +
-                    " where #nom='{4}' and #codegrp='{5}' and #nomprof='{6}'", txtnomprenomeleve.Text, cmbGrp.Text, cmbAnnee.Text, cmbprof.Text
-                   , dgvelevegrp.CurrentRow.Cells[0].Value.ToString(), dgvelevegrp.CurrentRow.Cells[1].Value.ToString(), dgvelevegrp.CurrentRow.Cells[3].Value.ToString()));
-                if (i==true)
-                {
-                    
-                    MemberGlobal.messageBox(new frmMssageboxSucces(), "modifier avec succée");
+                bool i = MemberGlobal.Insert_Edit_Delete(
+                    "update Raff set #nom=@nom, #codegrp=@grp, annee=@annee, #nomprof=@prof " +
+                    "where #nom=@oldNom and #codegrp=@oldGrp and #nomprof=@oldProf",
+                    new SqlParameter("@nom", txtnomprenomeleve.Text),
+                    new SqlParameter("@grp", cmbGrp.Text),
+                    new SqlParameter("@annee", cmbAnnee.Text),
+                    new SqlParameter("@prof", cmbprof.Text),
+                    new SqlParameter("@oldNom", oldNom),
+                    new SqlParameter("@oldGrp", oldGrp),
+                    new SqlParameter("@oldProf", oldProf));
 
+                if (i)
+                {
+                    MemberGlobal.messageBox(new frmMssageboxSucces(), "modifier avec succée");
                 }
-                else { 
+                else
+                {
                     MemberGlobal.messageBox(new frmMessagboxFaile(), "modification echoué ressayé");
                 }
             }
             else
             {
-
-               
                 MemberGlobal.messageBox(new frmMessagboxFaile(), "y'a aucun élève avec les donnée vous saisire");
-
             }
-
-
-
         }
 
         private void btnsupprimer_Click(object sender, EventArgs e)
         {
-            DataTable dt = MemberGlobal.rechercher(string.Format("Select*from Raff where #nom='{0}' and #codegrp='{1}' and #nomprof='{2}'", dgvelevegrp.CurrentRow.Cells[0].Value.ToString(), dgvelevegrp.CurrentRow.Cells[1].Value.ToString(), dgvelevegrp.CurrentRow.Cells[3].Value.ToString()));
+            if (dgvelevegrp.CurrentRow == null) return;
+
+            string oldNom = Convert.ToString(dgvelevegrp.CurrentRow.Cells[0].Value);
+            string oldGrp = Convert.ToString(dgvelevegrp.CurrentRow.Cells[1].Value);
+            string oldProf = Convert.ToString(dgvelevegrp.CurrentRow.Cells[3].Value);
+
+            DataTable dt = MemberGlobal.rechercher(
+                "select * from Raff where #nom=@nom and #codegrp=@grp and #nomprof=@prof",
+                new SqlParameter("@nom", oldNom),
+                new SqlParameter("@grp", oldGrp),
+                new SqlParameter("@prof", oldProf));
+
             if (dt.Rows.Count != 0)
             {
-                bool i = MemberGlobal.Insert_Edit_Delete(string.Format("delete from Raff " +
-                    " where #nom='{0}' and #codegrp='{1}' and #nomprof='{2}'"
-                   , dgvelevegrp.CurrentRow.Cells[0].Value.ToString(), dgvelevegrp.CurrentRow.Cells[1].Value.ToString(), dgvelevegrp.CurrentRow.Cells[3].Value.ToString()));
-                if (i == true)
-                {
-                   
-                    MemberGlobal.messageBox(new frmMssageboxSucces(), "supprimé avec succée");
+                bool i = MemberGlobal.Insert_Edit_Delete(
+                    "delete from Raff where #nom=@oldNom and #codegrp=@oldGrp and #nomprof=@oldProf",
+                    new SqlParameter("@oldNom", oldNom),
+                    new SqlParameter("@oldGrp", oldGrp),
+                    new SqlParameter("@oldProf", oldProf));
 
+                if (i)
+                {
+                    MemberGlobal.messageBox(new frmMssageboxSucces(), "supprimé avec succée");
                 }
-                else { 
+                else
+                {
                     MemberGlobal.messageBox(new frmMessagboxFaile(), "supprission echoué ressayé");
                 }
             }
             else
             {
-
-                
-                MemberGlobal.messageBox(new frmMessagboxFaile(),"y'a aucun élève avec les donnée vous saisire" );
-
+                MemberGlobal.messageBox(new frmMessagboxFaile(), "y'a aucun élève avec les donnée vous saisire");
             }
-
         }
 
         private void txtcin_KeyPress(object sender, KeyPressEventArgs e)

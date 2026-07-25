@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 
-
 namespace prj_ForYou
 {
     public partial class frmModif_Delete_Seance : Form
@@ -18,104 +17,75 @@ namespace prj_ForYou
         {
             InitializeComponent();
         }
-        SqlDataAdapter da_matier = new SqlDataAdapter("select*from matier ", MemberGlobal.cnxstring);
-        DataSet Ds = new DataSet();
-        SqlDataAdapter da_Annee = new SqlDataAdapter("select*from Annee", MemberGlobal.cnxstring);
+
         private void frmModif_Delete_Seance_Load(object sender, EventArgs e)
         {
-            da_matier.Fill(Ds, "m");
+            DataTable dtMatier = MemberGlobal.rechercher("select * from matier");
             cmbmatier.SelectedIndexChanged -= new EventHandler(cmbmatier_SelectedIndexChanged);
-            cmbmatier.DataSource = Ds.Tables["m"];
+            cmbmatier.DataSource = dtMatier;
             cmbmatier.ValueMember = "idmat";
             cmbmatier.SelectedIndexChanged += new EventHandler(cmbmatier_SelectedIndexChanged);
-            Ds.Tables.Add("n");
-            Ds.Tables.Add("p");
-            Ds.Tables.Add("g");
-            da_Annee.Fill(Ds, "a");
+
+            DataTable dtAnnee = MemberGlobal.rechercher("select * from Annee");
             cmbannee.SelectedIndexChanged -= new EventHandler(cmbannee_SelectedIndexChanged);
-            cmbannee.DataSource = Ds.Tables["a"];
+            cmbannee.DataSource = dtAnnee;
             cmbannee.ValueMember = "annee";
             cmbannee.SelectedIndexChanged += new EventHandler(cmbannee_SelectedIndexChanged);
-          
         }
-        SqlDataAdapter da_Niv = new SqlDataAdapter("", MemberGlobal.cnxstring);
-        SqlDataAdapter da_prof = new SqlDataAdapter("", MemberGlobal.cnxstring);
+
         private void cmbmatier_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["n"].Clear();
-            da_Niv.SelectCommand.CommandText = "select*from niveauMat where #idmat= " + "'" + cmbmatier.Text + "'";
-            da_Niv.Fill(Ds, "n");
+            DataTable dtNiv = MemberGlobal.rechercher("select * from niveauMat where #idmat=@idmat",
+                new SqlParameter("@idmat", cmbmatier.Text));
 
-            if (Ds.Tables["n"].Rows.Count != 0)
+            if (dtNiv.Rows.Count != 0)
             {
-
-
-
                 cmbniveau.SelectedIndexChanged -= new EventHandler(cmbniveau_SelectedIndexChanged);
-                cmbniveau.DataSource = Ds.Tables["n"];
+                cmbniveau.DataSource = dtNiv;
                 cmbniveau.ValueMember = "nomMat";
                 cmbniveau.SelectedIndexChanged += new EventHandler(cmbniveau_SelectedIndexChanged);
             }
-            Ds.Tables["p"].Clear();
-            da_prof.SelectCommand.CommandText = "select*from prof  where #idmat= " + "'" + cmbmatier.Text + "'";
-            da_prof.Fill(Ds, "p");
-            if (Ds.Tables["p"].Rows.Count != 0)
+
+            DataTable dtProf = MemberGlobal.rechercher("select * from prof where #idmat=@idmat",
+                new SqlParameter("@idmat", cmbmatier.Text));
+
+            if (dtProf.Rows.Count != 0)
             {
                 cmbnomprof.SelectedIndexChanged -= new EventHandler(cmbnomprof_SelectedIndexChanged);
-                cmbnomprof.DataSource = Ds.Tables["p"];
+                cmbnomprof.DataSource = dtProf;
                 cmbnomprof.ValueMember = "nomprof";
                 cmbnomprof.SelectedIndexChanged += new EventHandler(cmbnomprof_SelectedIndexChanged);
-
             }
         }
-        SqlDataAdapter da_grp = new SqlDataAdapter("", MemberGlobal.cnxstring);
 
         private void cmbniveau_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["g"].Clear();
-            da_grp.SelectCommand.CommandText = string.Format("select * from grp inner join Raff on codegrp=#codegrp where #idmat='{0}'and #codeNiv='{1}' and Raff.#nomprof='{2}' and  Raff.annee='{3}' ", cmbmatier.Text, cmbniveau.Text, cmbnomprof.Text, cmbannee.Text); /*"select*from grp where #idmat=' "+cmbmatier.Text+"'and #codeNiv='"+cmbniveau.Text+"'";*/
-
-            da_grp.Fill(Ds, "g");
-
-            if (Ds.Tables["g"].Rows.Count != 0)
-            {
-
-                cmbnomgrp.SelectedIndexChanged -= new EventHandler(cmbnomgrp_SelectedIndexChanged);
-                cmbnomgrp.DataSource = Ds.Tables["g"];
-                cmbnomgrp.ValueMember = "codegrp";
-                cmbnomgrp.SelectedIndexChanged += new EventHandler(cmbnomgrp_SelectedIndexChanged);
-            }
+            LoadGroups();
         }
 
         private void cmbnomprof_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["g"].Clear();
-            da_grp.SelectCommand.CommandText = string.Format("select * from grp inner join Raff on codegrp=#codegrp where #idmat='{0}'and #codeNiv='{1}' and Raff.#nomprof='{2}' and  Raff.annee='{3}' ", cmbmatier.Text, cmbniveau.Text, cmbnomprof.Text, cmbannee.Text);
-
-            da_grp.Fill(Ds, "g");
-
-            if (Ds.Tables["g"].Rows.Count != 0)
-            {
-
-                cmbnomgrp.SelectedIndexChanged -= new EventHandler(cmbnomgrp_SelectedIndexChanged);
-                cmbnomgrp.DataSource = Ds.Tables["g"];
-                cmbnomgrp.ValueMember = "codegrp";
-                cmbnomgrp.SelectedIndexChanged += new EventHandler(cmbnomgrp_SelectedIndexChanged);
-            }
+            LoadGroups();
         }
 
         private void cmbannee_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["g"].Clear();
-            da_grp.SelectCommand.CommandText = string.Format("select * from grp inner join Raff on codegrp=#codegrp where #idmat='{0}'and #codeNiv='{1}' and Raff.#nomprof='{2}' and  Raff.annee='{3}' ", cmbmatier.Text, cmbniveau.Text, cmbnomprof.Text, cmbannee.Text); /*"select*from grp where #idmat=' "+cmbmatier.Text+"'and #codeNiv='"+cmbniveau.Text+"'";*/
+            LoadGroups();
+        }
 
-            da_grp.Fill(Ds, "g");
+        private void LoadGroups()
+        {
+            DataTable dtGrp = MemberGlobal.rechercher(
+                "select distinct codegrp from grp inner join Raff on codegrp=#codegrp where #idmat=@idmat and #codeNiv=@codeNiv and Raff.#nomprof=@prof and Raff.annee=@annee",
+                new SqlParameter("@idmat", cmbmatier.Text),
+                new SqlParameter("@codeNiv", cmbniveau.Text),
+                new SqlParameter("@prof", cmbnomprof.Text),
+                new SqlParameter("@annee", cmbannee.Text));
 
-            if (Ds.Tables["g"].Rows.Count != 0)
+            if (dtGrp.Rows.Count != 0)
             {
-
                 cmbnomgrp.SelectedIndexChanged -= new EventHandler(cmbnomgrp_SelectedIndexChanged);
-                cmbnomgrp.DataSource = Ds.Tables["g"];
+                cmbnomgrp.DataSource = dtGrp;
                 cmbnomgrp.ValueMember = "codegrp";
                 cmbnomgrp.SelectedIndexChanged += new EventHandler(cmbnomgrp_SelectedIndexChanged);
             }
@@ -123,56 +93,77 @@ namespace prj_ForYou
 
         private void cmbnomgrp_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DataTable dt = MemberGlobal.rechercher(string.Format(" select count(#nom) from Raff where #nomprof='{0}'and #codegrp='{1}' and annee='{2}'", cmbnomprof.Text, cmbnomgrp.Text, cmbannee.Text));
-            lblnombrEleve.Text = dt.Rows[0][0].ToString();
+            DataTable dt = MemberGlobal.rechercher(
+                "select count(#nom) from Raff where #nomprof=@prof and #codegrp=@grp and annee=@annee",
+                new SqlParameter("@prof", cmbnomprof.Text),
+                new SqlParameter("@grp", cmbnomgrp.Text),
+                new SqlParameter("@annee", cmbannee.Text));
+
+            if (dt.Rows.Count != 0)
+            {
+                lblnombrEleve.Text = dt.Rows[0][0].ToString();
+            }
         }
+
         int pos;
         private void dgv_SelectionChanged(object sender, EventArgs e)
         {
-            txtjour.Text = dgv.CurrentRow.Cells[0].Value.ToString();
-            mtxtHD.Text= dgv.CurrentRow.Cells[1].Value.ToString();
-            mtxtHF.Text= dgv.CurrentRow.Cells[2].Value.ToString();
-            pos = dgv.CurrentRow.Index;
+            if (dgv.CurrentRow != null && dgv.CurrentRow.Cells.Count >= 3)
+            {
+                txtjour.Text = Convert.ToString(dgv.CurrentRow.Cells[0].Value);
+                mtxtHD.Text = Convert.ToString(dgv.CurrentRow.Cells[1].Value);
+                mtxtHF.Text = Convert.ToString(dgv.CurrentRow.Cells[2].Value);
+                pos = dgv.CurrentRow.Index;
+            }
         }
-         
+
         private void btnrechercher_Click(object sender, EventArgs e)
         {
-            if (cmbannee.Text != "" && cmbmatier.Text != "" && cmbniveau.Text != "" && cmbnomgrp.Text != "" && cmbnomprof.Text != "")
+            if (!string.IsNullOrWhiteSpace(cmbannee.Text) &&
+                !string.IsNullOrWhiteSpace(cmbmatier.Text) &&
+                !string.IsNullOrWhiteSpace(cmbniveau.Text) &&
+                !string.IsNullOrWhiteSpace(cmbnomgrp.Text) &&
+                !string.IsNullOrWhiteSpace(cmbnomprof.Text))
             {
-                DataTable dt = MemberGlobal.rechercher(string.Format(" select dayy,heureD,heureF from seance where #codegrp='{0}' and #annee='{1}' and #nomprof='{2}'", cmbnomgrp.Text, cmbannee.Text, cmbnomprof.Text));
+                DataTable dt = MemberGlobal.rechercher(
+                    "select dayy,heureD,heureF from seance where #codegrp=@grp and #annee=@annee and #nomprof=@prof",
+                    new SqlParameter("@grp", cmbnomgrp.Text),
+                    new SqlParameter("@annee", cmbannee.Text),
+                    new SqlParameter("@prof", cmbnomprof.Text));
 
-                
-                if ( dt.Rows.Count!=0)
+                if (dt.Rows.Count != 0)
                 {
-                   
-
                     dgv.DataSource = dt;
                 }
                 else
                 {
                     MemberGlobal.messageBox(new frmMessagboxFaile(), "N'Exist pas");
                 }
-
-
             }
         }
-       
 
         private void btnmodifier_Click(object sender, EventArgs e)
         {
-            if (cmbannee.Text != "" && cmbmatier.Text != "" && cmbniveau.Text != "" && cmbnomgrp.Text != "" && cmbnomprof.Text != "")
+            if (!string.IsNullOrWhiteSpace(cmbannee.Text) &&
+                !string.IsNullOrWhiteSpace(cmbmatier.Text) &&
+                !string.IsNullOrWhiteSpace(cmbniveau.Text) &&
+                !string.IsNullOrWhiteSpace(cmbnomgrp.Text) &&
+                !string.IsNullOrWhiteSpace(cmbnomprof.Text))
             {
-
-
-                if (dgv.Rows.Count != 0)
+                if (dgv.CurrentRow != null && dgv.Rows.Count != 0)
                 {
-                    string query = string.Format("update seance set   heureD ='{0}',heureF ='{1}' where #codegrp ='{2}' and #nomprof='{3}' and #annee= {4} and dayy='{5}'", mtxtHD.Text, mtxtHF.Text, cmbnomgrp.Text, cmbnomprof.Text, cmbannee.Text, dgv.CurrentRow.Cells[0].Value.ToString());
-                    MessageBox.Show(query);
-                    bool i = false;
-                       i= MemberGlobal.Insert_Edit_Delete(query);
-                    if(i==true)
-                    {
+                    string dayyVal = Convert.ToString(dgv.CurrentRow.Cells[0].Value);
+                    bool i = MemberGlobal.Insert_Edit_Delete(
+                        "update seance set heureD=@hd, heureF=@hf where #codegrp=@grp and #nomprof=@prof and #annee=@annee and dayy=@dayy",
+                        new SqlParameter("@hd", mtxtHD.Text),
+                        new SqlParameter("@hf", mtxtHF.Text),
+                        new SqlParameter("@grp", cmbnomgrp.Text),
+                        new SqlParameter("@prof", cmbnomprof.Text),
+                        new SqlParameter("@annee", cmbannee.Text),
+                        new SqlParameter("@dayy", dayyVal));
 
+                    if (i)
+                    {
                         MemberGlobal.messageBox(new frmMssageboxSucces(), "modifié avec succèe");
                     }
                     else
@@ -180,41 +171,40 @@ namespace prj_ForYou
                         MemberGlobal.messageBox(new frmMessagboxFaile(), "modification echoué ressayé");
                     }
                 }
-
-               
             }
-           
         }
 
         private void dgv_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
         }
 
         private void btnsupprimer_Click(object sender, EventArgs e)
         {
-            if (cmbannee.Text != "" && cmbmatier.Text != "" && cmbniveau.Text != "" && cmbnomgrp.Text != "" && cmbnomprof.Text != "")
+            if (!string.IsNullOrWhiteSpace(cmbannee.Text) &&
+                !string.IsNullOrWhiteSpace(cmbmatier.Text) &&
+                !string.IsNullOrWhiteSpace(cmbniveau.Text) &&
+                !string.IsNullOrWhiteSpace(cmbnomgrp.Text) &&
+                !string.IsNullOrWhiteSpace(cmbnomprof.Text))
             {
-
-
-                if (dgv.Rows.Count != 0)
+                if (dgv.CurrentRow != null && dgv.Rows.Count != 0)
                 {
-                    bool i = MemberGlobal.Insert_Edit_Delete(string.Format("delete from seance  where #codegrp='{0}' and #nomprof='{1}' and #annee='{2}' and dayy='{3}'", cmbnomgrp.Text, cmbnomprof.Text, cmbannee.Text, dgv.CurrentRow.Cells[0].Value.ToString()));
-                    if (i == true)
-                    {
-                        MessageBox.Show("supprimé avec succèe");
-                        MemberGlobal.messageBox(new frmMssageboxSucces(), "Supprimé avec succèe");
+                    string dayyVal = Convert.ToString(dgv.CurrentRow.Cells[0].Value);
+                    bool i = MemberGlobal.Insert_Edit_Delete(
+                        "delete from seance where #codegrp=@grp and #nomprof=@prof and #annee=@annee and dayy=@dayy",
+                        new SqlParameter("@grp", cmbnomgrp.Text),
+                        new SqlParameter("@prof", cmbnomprof.Text),
+                        new SqlParameter("@annee", cmbannee.Text),
+                        new SqlParameter("@dayy", dayyVal));
 
+                    if (i)
+                    {
+                        MemberGlobal.messageBox(new frmMssageboxSucces(), "Supprimé avec succèe");
                     }
                     else
                     {
-                        
                         MemberGlobal.messageBox(new frmMessagboxFaile(), "supprission echoué ressayé");
-
                     }
                 }
-
-
             }
         }
     }
