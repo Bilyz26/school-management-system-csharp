@@ -28,7 +28,9 @@ namespace prj_ForYou
             if (dt.Rows.Count != 0)
             {
                 this.Hide();
-                new FrmMenu().Show();
+                FrmMenu menu = new FrmMenu();
+                menu.FormClosed += (s, args) => Application.Exit();
+                menu.Show();
                 dt.Clear();
             }
             else
