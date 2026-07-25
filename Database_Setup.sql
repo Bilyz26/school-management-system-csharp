@@ -203,7 +203,35 @@ IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_seance_prof')
     ALTER TABLE [dbo].[seance] WITH CHECK ADD FOREIGN KEY([#nomprof]) REFERENCES [dbo].[prof] ([nomprof]);
 GO
 
--- Default Seeds
+-- Non-Clustered Indexes for Query Performance
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_inscStd_cin')
+    CREATE NONCLUSTERED INDEX [IX_inscStd_cin] ON [dbo].[inscStd] ([#cin] ASC);
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Raff_lookup')
+    CREATE NONCLUSTERED INDEX [IX_Raff_lookup] ON [dbo].[Raff] ([#nomprof] ASC, [#codegrp] ASC, [annee] ASC);
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_pay_search')
+    CREATE NONCLUSTERED INDEX [IX_pay_search] ON [dbo].[pay] ([#nom] ASC, [#codegrp] ASC, [monthp] ASC, [#annee] ASC);
+GO
+
+-- Analytical Views
+IF OBJECT_ID('dbo.vw_GroupHeadcount', 'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_GroupHeadcount];
+GO
+
+CREATE VIEW [dbo].[vw_GroupHeadcount] AS
+SELECT 
+    R.#codegrp AS GroupCode,
+    R.#nomprof AS TeacherName,
+    R.annee AS AcademicYear,
+    COUNT(R.#nom) AS TotalStudents
+FROM [dbo].[Raff] R
+GROUP BY R.#codegrp, R.#nomprof, R.annee;
+GO
+
+-- Default Seed Data
 IF NOT EXISTS (SELECT * FROM dbo.emp WHERE nomemp = 'admin')
 BEGIN
     INSERT INTO dbo.emp (nomemp, tele, fonction, username, pw)
@@ -217,5 +245,5 @@ BEGIN
 END
 GO
 
-PRINT 'DB_Support_School schema synchronized successfully!';
+PRINT 'DB_Support_School schema & performance indexes synchronized successfully!';
 GO
