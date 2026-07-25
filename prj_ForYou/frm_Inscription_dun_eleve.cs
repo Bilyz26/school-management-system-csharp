@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Data.SqlClient;
 
 namespace prj_ForYou
 {
@@ -15,16 +16,13 @@ namespace prj_ForYou
         public frm_Inscription_dun_eleve()
         {
             InitializeComponent();
-           
         }
 
-      
         private void frm_Inscription_dun_eleve_Load(object sender, EventArgs e)
         {
             dataGridView1.SelectionChanged += new EventHandler(dataGridView1_SelectionChanged);
-
             dtpdatedebut.Format = DateTimePickerFormat.Custom;
-            dtpdatedebut.CustomFormat =  "yyyy/MM/dd";
+            dtpdatedebut.CustomFormat = "yyyy/MM/dd";
             cbcin.Checked = false;
         }
 
@@ -35,75 +33,81 @@ namespace prj_ForYou
 
         private void gbeleve_Enter(object sender, EventArgs e)
         {
-
         }
+
         decimal fri;
         private void btnAjouter_Click(object sender, EventArgs e)
         {
-            if (txtcineleve.Text != "" && qui != "" && txtnomprenomeleve.Text != "" && mtxtteleleve.Text != "" && dtpdatedebut.Text != "")
+            if (!string.IsNullOrWhiteSpace(txtcineleve.Text) &&
+                !string.IsNullOrWhiteSpace(qui) &&
+                !string.IsNullOrWhiteSpace(txtnomprenomeleve.Text) &&
+                !string.IsNullOrWhiteSpace(mtxtteleleve.Text))
             {
-               
-                DataTable b = MemberGlobal.rechercher(string.Format("select*from inscStd where nom='{0}' ", txtnomprenomeleve.Text));
+                DataTable b = MemberGlobal.rechercher("select * from inscStd where nom=@nom",
+                    new SqlParameter("@nom", txtnomprenomeleve.Text));
+
                 if (b.Rows.Count == 0)
                 {
-                    if (txtfrinscr.Text == "")
+                    if (string.IsNullOrWhiteSpace(txtfrinscr.Text))
                     {
                         fri = 0;
                     }
                     else
-                    { fri = decimal.Parse(txtfrinscr.Text); }
-
-
-
-                    string s = string.Format("insert into inscStd values('{0}','{1}','{2}','{3}',{4},'{5}' )",
-                            txtcineleve.Text, qui, txtnomprenomeleve.Text, mtxtteleleve.Text, fri, dtpdatedebut.Value);
-                    bool i = MemberGlobal.Insert_Edit_Delete(s);
-                    if (i == true)
-
-                    { MemberGlobal.messageBox(new frmMssageboxSucces(), " Ajouter avec succée");              /* MessageBox.Show("Ajouter avec succée");*/
-                        MemberGlobal.vider(this);
+                    {
+                        decimal.TryParse(txtfrinscr.Text, out fri);
                     }
 
+                    string query = "insert into inscStd values(@cin, @qui, @nom, @tele, @frinsc, @dateD)";
+                    bool i = MemberGlobal.Insert_Edit_Delete(query,
+                        new SqlParameter("@cin", txtcineleve.Text),
+                        new SqlParameter("@qui", qui),
+                        new SqlParameter("@nom", txtnomprenomeleve.Text),
+                        new SqlParameter("@tele", mtxtteleleve.Text),
+                        new SqlParameter("@frinsc", fri),
+                        new SqlParameter("@dateD", dtpdatedebut.Value));
+
+                    if (i)
+                    {
+                        MemberGlobal.messageBox(new frmMssageboxSucces(), " Ajouter avec succée");
+                        MemberGlobal.vider(this);
+                    }
                 }
                 else
-                { MemberGlobal.messageBox(new frmMessagboxFaile(), "Le Nom d'éléve éxist Deja"); }
+                {
+                    MemberGlobal.messageBox(new frmMessagboxFaile(), "Le Nom d'éléve éxist Deja");
+                }
             }
         }
+
         string qui = "élève";
         private void cbcin_CheckedChanged(object sender, EventArgs e)
         {
-            if(cbcin.Checked==false)
-            { qui = "élève"; }
+            if (cbcin.Checked == false)
+            {
+                qui = "élève";
+            }
             else
-            { qui = "Paren"; }
+            {
+                qui = "Parent";
+            }
         }
-        //---------------------------------------------------------------------------------------------------------------------------------
+
         DataTable dt;
         private void btnrechercher_Click(object sender, EventArgs e)
         {
-            if (txtrech.Text != "")
+            if (!string.IsNullOrWhiteSpace(txtrech.Text))
             {
-                dt = MemberGlobal.rechercher(string.Format("select nom as'Nom et Prenom',#cin as'CIN', qui as'Le propriétaire de Cin',tele as'numéro de telephone',frinsc as'Frais d inscription',dateD as'date  d inscription' from inscStd where #cin='{0}' or nom like '{1}%' ", txtrech.Text,txtrech.Text));
+                dt = MemberGlobal.rechercher(
+                    "select nom as 'Nom et Prenom',#cin as 'CIN', qui as 'Le propriétaire de Cin',tele as 'numéro de telephone',frinsc as 'Frais d inscription',dateD as 'date d inscription' from inscStd where #cin=@searchCin or nom like @searchNom",
+                    new SqlParameter("@searchCin", txtrech.Text),
+                    new SqlParameter("@searchNom", txtrech.Text + "%"));
 
-                if (dt.Rows.Count != 0)
+                if (dt != null && dt.Rows.Count != 0)
                 {
-                    //txtcineleve.Text = dt.Rows[0][0].ToString();
-                    //txtnomprenomeleve.Text= dt.Rows[0][2].ToString();
-                    //mtxtteleleve.Text= dt.Rows[0][3].ToString();
-                    //txtfrinscr.Text= dt.Rows[0][4].ToString();
-                    //dtpdatedebut.Text= dt.Rows[0][5].ToString();
-                    //if(dt.Rows[0][1].ToString()=="P")
-                    //{ cbcin.Checked = true; }
-                    //else { cbcin.Checked = false; }
-
-                    ////dataGridView1.DataSource = dt;
-                    //btnmodifier.Enabled = true;
-
                     dataGridView1.DataSource = dt;
                 }
                 else
                 {
-                    
                     MemberGlobal.messageBox(new frmMessagboxFaile(), "y'a aucun élève avec les données vous saisir");
                 }
             }
@@ -111,92 +115,102 @@ namespace prj_ForYou
 
         private void btnmodifier_Click(object sender, EventArgs e)
         {
-            //DataTable dt = MemberGlobal.rechercher(string.Format("select*from inscStd where nom='{0}'", txtnomprenomeleve.Text));
             try
             {
-                if (dt.Rows.Count != 0)
+                if (dt != null && dt.Rows.Count != 0 && pos >= 0 && pos < dt.Rows.Count)
                 {
-
-                    decimal f;
-                    if (txtfrinscr.Text == "")
+                    decimal f = 0;
+                    if (!string.IsNullOrWhiteSpace(txtfrinscr.Text))
                     {
-                        f = 0;
+                        decimal.TryParse(txtfrinscr.Text, out f);
                     }
-                    else { f = decimal.Parse(txtfrinscr.Text); }
-                    string s = string.Format("update inscStd set #cin='{0}',nom='{1}',tele='{2}'" + ",frinsc={3},dateD='{4}',qui='{6}' where nom='{5}' "
-                     , txtcineleve.Text, txtnomprenomeleve.Text, mtxtteleleve.Text, f, dtpdatedebut.Value, dt.Rows[pos][0].ToString(), qui);
-                    bool i = MemberGlobal.Insert_Edit_Delete(s);
-                    //MessageBox.Show(s);
-                    if (i == true)
+
+                    string oldNom = dt.Rows[pos][0].ToString();
+                    string query = "update inscStd set #cin=@cin, nom=@nom, tele=@tele, frinsc=@frinsc, dateD=@dateD, qui=@qui where nom=@oldNom";
+
+                    bool i = MemberGlobal.Insert_Edit_Delete(query,
+                        new SqlParameter("@cin", txtcineleve.Text),
+                        new SqlParameter("@nom", txtnomprenomeleve.Text),
+                        new SqlParameter("@tele", mtxtteleleve.Text),
+                        new SqlParameter("@frinsc", f),
+                        new SqlParameter("@dateD", dtpdatedebut.Value),
+                        new SqlParameter("@qui", qui),
+                        new SqlParameter("@oldNom", oldNom));
+
+                    if (i)
                     {
-                        
                         MemberGlobal.messageBox(new frmMssageboxSucces(), "modifier avec succées ");
                     }
                     else
-                    { MemberGlobal.messageBox(new frmMessagboxFaile(), "y'a aucun élève avec les données vous saisir"); }
-
+                    {
+                        MemberGlobal.messageBox(new frmMessagboxFaile(), "y'a aucun élève avec les données vous saisir");
+                    }
                 }
-            }
-            catch 
-            {
-                //MessageBox.Show("");
-            }
-
-           
-           
-        }
-        int pos;
-        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
-        {try
-            {
-                //DataTable dt = MemberGlobal.rechercher(string.Format("select*from inscStd where #cin='{0}' ", txtcineleve.Text));
-                //dataGridView1.DataSource = dt;
-                if (dt.Rows.Count != 0)
-                { 
-
-                    pos = dataGridView1.CurrentRow.Index;
-                    if (pos == dataGridView1.Rows.Count - 1)
-                    { pos = pos - 1; }
-                    txtcineleve.Text = dt.Rows[pos][1].ToString();
-                    txtnomprenomeleve.Text = dt.Rows[pos][0].ToString();
-                    mtxtteleleve.Text = dt.Rows[pos][3].ToString();
-                    txtfrinscr.Text = dt.Rows[pos][4].ToString();
-                    dtpdatedebut.Text = dt.Rows[pos][5].ToString();
-                    if (dt.Rows[pos][2].ToString() == "Parent")
-                    { cbcin.Checked = true; }
-                    else { cbcin.Checked = false; }
-
-
-
-
-                }
-               
             }
             catch
             {
-
-
             }
+        }
 
+        int pos;
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dt != null && dt.Rows.Count != 0 && dataGridView1.CurrentRow != null)
+                {
+                    pos = dataGridView1.CurrentRow.Index;
+                    if (pos >= dt.Rows.Count)
+                    {
+                        pos = dt.Rows.Count - 1;
+                    }
+
+                    if (pos >= 0)
+                    {
+                        txtcineleve.Text = dt.Rows[pos][1].ToString();
+                        txtnomprenomeleve.Text = dt.Rows[pos][0].ToString();
+                        mtxtteleleve.Text = dt.Rows[pos][3].ToString();
+                        txtfrinscr.Text = dt.Rows[pos][4].ToString();
+                        DateTime parsedDate;
+                        if (DateTime.TryParse(dt.Rows[pos][5].ToString(), out parsedDate))
+                        {
+                            dtpdatedebut.Value = parsedDate;
+                        }
+
+                        if (dt.Rows[pos][2].ToString() == "Parent")
+                        {
+                            cbcin.Checked = true;
+                        }
+                        else
+                        {
+                            cbcin.Checked = false;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void frm_Inscription_dun_eleve_MaximumSizeChanged(object sender, EventArgs e)
         {
-
-          
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
         }
 
         private void cbcin_CheckedChanged_1(object sender, EventArgs e)
         {
             if (cbcin.Checked == false)
-            { qui = "élève"; }
+            {
+                qui = "élève";
+            }
             else
-            { qui = "Paren"; }
+            {
+                qui = "Parent";
+            }
         }
 
         private void label3_Click(object sender, EventArgs e)
@@ -207,27 +221,18 @@ namespace prj_ForYou
             mtxtteleleve.Text = string.Empty;
             cbcin.Checked = false;
             dtpdatedebut.Text = string.Empty;
-            
             txtrech.Text = string.Empty;
-            if (txtnomprenomeleve.Text == string.Empty)
-            {  dataGridView1.Columns.Clear();
-                txtcineleve.Text = string.Empty;
-                txtfrinscr.Text = string.Empty;
-                txtnomprenomeleve.Text = "";
-                mtxtteleleve.Text = string.Empty;
-                cbcin.Checked = false;
-                dtpdatedebut.Text = string.Empty;
-
-                txtrech.Text = string.Empty;
+            if (dataGridView1.Columns.Count > 0)
+            {
+                dataGridView1.Columns.Clear();
             }
-               
         }
-     
+
         private void txtrech_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if(e.KeyChar==(char)Keys.Enter)
+            if (e.KeyChar == (char)Keys.Enter)
             {
-                btnrechercher_Click(sender, e);  
+                btnrechercher_Click(sender, e);
             }
         }
     }
