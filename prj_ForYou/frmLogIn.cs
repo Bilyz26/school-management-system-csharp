@@ -56,6 +56,7 @@ namespace prj_ForYou
 
         private void frmLogIn_Load(object sender, EventArgs e)
         {
+            MemberGlobal.InitSQLiteDatabase();
             txtpassword.UseSystemPasswordChar = false;
         }
 

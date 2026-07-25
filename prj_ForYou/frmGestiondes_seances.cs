@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 
 namespace prj_ForYou
 {
@@ -130,114 +130,98 @@ namespace prj_ForYou
         {
 
         }
-        SqlDataAdapter da_matier = new SqlDataAdapter("select*from matier ", MemberGlobal.cnxstring);
-        DataSet Ds = new DataSet();
-        SqlDataAdapter da_Annee = new SqlDataAdapter("select*from Annee", MemberGlobal.cnxstring);
+        // DataTables stored as instance fields (replaces SqlDataAdapter + DataSet)
+        private DataTable dtMatier = new DataTable();
+        private DataTable dtAnnee  = new DataTable();
+        private DataTable dtNiv    = new DataTable();
+        private DataTable dtProf   = new DataTable();
+        private DataTable dtGrp    = new DataTable();
 
         private void frmGestiondes_seances_Load(object sender, EventArgs e)
         {
-            da_matier.Fill(Ds, "m");
-            cmbmatier.SelectedIndexChanged -= new EventHandler(cmbmatier_SelectedIndexChanged);
-            cmbmatier.DataSource = Ds.Tables["m"];
-            cmbmatier.ValueMember = "idmat";
-            cmbmatier.SelectedIndexChanged += new EventHandler(cmbmatier_SelectedIndexChanged);
-            Ds.Tables.Add("n");
-            Ds.Tables.Add("p");
-            Ds.Tables.Add("g");
-            da_Annee.Fill(Ds, "a");
-            cmbannee.SelectedIndexChanged -= new EventHandler(cmbannee_SelectedIndexChanged);
-            cmbannee.DataSource = Ds.Tables["a"];
-            cmbannee.ValueMember = "annee";
-            cmbannee.SelectedIndexChanged += new EventHandler(cmbannee_SelectedIndexChanged);
+            dtMatier = MemberGlobal.rechercher("select * from matier");
+            if (dtMatier.Rows.Count > 0)
+            {
+                cmbmatier.SelectedIndexChanged -= new EventHandler(cmbmatier_SelectedIndexChanged);
+                cmbmatier.DataSource = dtMatier;
+                cmbmatier.ValueMember = "idmat";
+                cmbmatier.SelectedIndexChanged += new EventHandler(cmbmatier_SelectedIndexChanged);
+            }
 
+            dtAnnee = MemberGlobal.rechercher("select * from Annee");
+            if (dtAnnee.Rows.Count > 0)
+            {
+                cmbannee.SelectedIndexChanged -= new EventHandler(cmbannee_SelectedIndexChanged);
+                cmbannee.DataSource = dtAnnee;
+                cmbannee.ValueMember = "annee";
+                cmbannee.SelectedIndexChanged += new EventHandler(cmbannee_SelectedIndexChanged);
+            }
         }
-        SqlDataAdapter da_Niv = new SqlDataAdapter("", MemberGlobal.cnxstring);
-        SqlDataAdapter da_prof = new SqlDataAdapter("", MemberGlobal.cnxstring);
         private void cmbmatier_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["n"].Clear();
-            da_Niv.SelectCommand.CommandText = "select*from niveauMat where #idmat= " + "'" + cmbmatier.Text + "'";
-            da_Niv.Fill(Ds, "n");
-
-            if (Ds.Tables["n"].Rows.Count != 0)
+            dtNiv = MemberGlobal.rechercher("select * from niveauMat where #idmat=@idmat",
+                new System.Data.SqlClient.SqlParameter("@idmat", cmbmatier.Text));
+            if (dtNiv.Rows.Count > 0)
             {
-
-
-
                 cmbniveau.SelectedIndexChanged -= new EventHandler(cmbniveau_SelectedIndexChanged);
-                cmbniveau.DataSource = Ds.Tables["n"];
+                cmbniveau.DataSource = dtNiv;
                 cmbniveau.ValueMember = "nomMat";
                 cmbniveau.SelectedIndexChanged += new EventHandler(cmbniveau_SelectedIndexChanged);
             }
-            Ds.Tables["p"].Clear();
-            da_prof.SelectCommand.CommandText = "select*from prof  where #idmat= " + "'" + cmbmatier.Text + "'";
-            da_prof.Fill(Ds, "p");
-            if (Ds.Tables["p"].Rows.Count != 0)
+
+            dtProf = MemberGlobal.rechercher("select * from prof where #idmat=@idmat",
+                new System.Data.SqlClient.SqlParameter("@idmat", cmbmatier.Text));
+            if (dtProf.Rows.Count > 0)
             {
                 cmbnomprof.SelectedIndexChanged -= new EventHandler(cmbnomprof_SelectedIndexChanged);
-                cmbnomprof.DataSource = Ds.Tables["p"];
+                cmbnomprof.DataSource = dtProf;
                 cmbnomprof.ValueMember = "nomprof";
                 cmbnomprof.SelectedIndexChanged += new EventHandler(cmbnomprof_SelectedIndexChanged);
-
             }
         }
-        SqlDataAdapter da_grp = new SqlDataAdapter("", MemberGlobal.cnxstring);
-
-        private void cmbniveau_SelectedIndexChanged(object sender, EventArgs e)
+        private void LoadGroupCombo()
         {
-            Ds.Tables["g"].Clear();
-            da_grp.SelectCommand.CommandText = string.Format("select distinct codegrp from grp inner join Raff on codegrp=#codegrp where #idmat='{0}'and #codeNiv='{1}' and Raff.#nomprof='{2}' and  Raff.annee='{3}' ", cmbmatier.Text, cmbniveau.Text,cmbnomprof.Text,cmbannee.Text); /*"select*from grp where #idmat=' "+cmbmatier.Text+"'and #codeNiv='"+cmbniveau.Text+"'";*/
+            dtGrp = MemberGlobal.rechercher(
+                "select distinct codegrp from grp inner join Raff on codegrp=#codegrp " +
+                "where #idmat=@idmat and #codeNiv=@codeNiv and Raff.#nomprof=@prof and Raff.annee=@annee",
+                new System.Data.SqlClient.SqlParameter("@idmat",   cmbmatier.Text),
+                new System.Data.SqlClient.SqlParameter("@codeNiv", cmbniveau.Text),
+                new System.Data.SqlClient.SqlParameter("@prof",    cmbnomprof.Text),
+                new System.Data.SqlClient.SqlParameter("@annee",   cmbannee.Text));
 
-            da_grp.Fill(Ds, "g");
-
-            if (Ds.Tables["g"].Rows.Count != 0)
+            if (dtGrp.Rows.Count > 0)
             {
-
                 cmbnomgrp.SelectedIndexChanged -= new EventHandler(cmbnomgrp_SelectedIndexChanged);
-                cmbnomgrp.DataSource = Ds.Tables["g"];
+                cmbnomgrp.DataSource = dtGrp;
                 cmbnomgrp.ValueMember = "codegrp";
                 cmbnomgrp.SelectedIndexChanged += new EventHandler(cmbnomgrp_SelectedIndexChanged);
             }
+        }
+
+        private void cmbniveau_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadGroupCombo();
         }
 
         private void cmbnomprof_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["g"].Clear();
-            da_grp.SelectCommand.CommandText = string.Format("select distinct codegrp from grp inner join Raff on codegrp=#codegrp where #idmat='{0}'and #codeNiv='{1}' and Raff.#nomprof='{2}' and  Raff.annee='{3}' ", cmbmatier.Text, cmbniveau.Text, cmbnomprof.Text, cmbannee.Text); 
-
-            da_grp.Fill(Ds, "g");
-
-            if (Ds.Tables["g"].Rows.Count != 0)
-            {
-
-                cmbnomgrp.SelectedIndexChanged -= new EventHandler(cmbnomgrp_SelectedIndexChanged);
-                cmbnomgrp.DataSource = Ds.Tables["g"];
-                cmbnomgrp.ValueMember = "codegrp";
-                cmbnomgrp.SelectedIndexChanged += new EventHandler(cmbnomgrp_SelectedIndexChanged);
-            }
+            LoadGroupCombo();
         }
 
         private void cmbnomgrp_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DataTable dt = MemberGlobal.rechercher(string.Format(" select count(#nom) from Raff where #nomprof='{0}'and #codegrp='{1}' and annee='{2}'", cmbnomprof.Text, cmbnomgrp.Text, cmbannee.Text));
-            lblnombrEleve.Text = dt.Rows[0][0].ToString();
+            DataTable dt = MemberGlobal.rechercher(
+                "select count(#nom) from Raff where #nomprof=@prof and #codegrp=@grp and annee=@annee",
+                new System.Data.SqlClient.SqlParameter("@prof",  cmbnomprof.Text),
+                new System.Data.SqlClient.SqlParameter("@grp",   cmbnomgrp.Text),
+                new System.Data.SqlClient.SqlParameter("@annee", cmbannee.Text));
+            if (dt.Rows.Count > 0)
+                lblnombrEleve.Text = dt.Rows[0][0].ToString();
         }
 
         private void cmbannee_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Ds.Tables["g"].Clear();
-            da_grp.SelectCommand.CommandText = string.Format("select distinct codegrp from grp inner join Raff on codegrp=#codegrp where #idmat='{0}'and #codeNiv='{1}' and Raff.#nomprof='{2}' and  Raff.annee='{3}' ", cmbmatier.Text, cmbniveau.Text, cmbnomprof.Text, cmbannee.Text); /*"select*from grp where #idmat=' "+cmbmatier.Text+"'and #codeNiv='"+cmbniveau.Text+"'";*/
-
-            da_grp.Fill(Ds, "g");
-
-            if (Ds.Tables["g"].Rows.Count != 0)
-            {
-
-                cmbnomgrp.SelectedIndexChanged -= new EventHandler(cmbnomgrp_SelectedIndexChanged);
-                cmbnomgrp.DataSource = Ds.Tables["g"];
-                cmbnomgrp.ValueMember = "codegrp";
-                cmbnomgrp.SelectedIndexChanged += new EventHandler(cmbnomgrp_SelectedIndexChanged);
-            }
+            LoadGroupCombo();
         }
 
 
