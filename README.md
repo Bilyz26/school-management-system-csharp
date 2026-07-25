@@ -3,11 +3,12 @@
 ![C#](https://img.shields.io/badge/Language-C%23%207.0-blue.svg)
 ![Framework](https://img.shields.io/badge/Framework-.NET%20Framework%204.6.1-purple.svg)
 ![Database](https://img.shields.io/badge/Database-SQL%20Server-red.svg)
+![Security](https://img.shields.io/badge/Security-Parameterized%20SQL-green.svg)
 ![Reports](https://img.shields.io/badge/Reports-Crystal%20Reports-orange.svg)
 ![UI](https://img.shields.io/badge/UI-Windows%20Forms-green.svg)
 
 ## 📌 Project Overview
-**prj_ForYou** is a Windows Desktop Application built in C# (.NET Framework 4.6.1) and SQL Server for managing private support schools and educational centers (*Centre de Soutien Scolaire*). 
+**prj_ForYou** is a production-ready Windows Desktop Application built in C# (.NET Framework 4.6.1) and SQL Server for managing private support schools and educational centers (*Centre de Soutien Scolaire*). 
 
 The system automates student registration, academic timetable generation, teacher assignment, group management, monthly payment tracking, financial revenue splitting, and Crystal Reports printing.
 
@@ -17,6 +18,8 @@ The system automates student registration, academic timetable generation, teache
 
 ### 🔐 1. Authentication & Security
 - User login authentication for administration staff (`emp` table).
+- Parameterized SQL queries preventing SQL Injection vulnerabilities across all form operations.
+- Dynamic `App.config` database connection resolution with fallback support.
 - Role-based UI navigation sidebar with dynamic panel switching.
 
 ### 👨‍🎓 2. Student Management (`frm_Inscription_dun_eleve`)
@@ -27,7 +30,7 @@ The system automates student registration, academic timetable generation, teache
 ### 👨‍🏫 3. Staff & Subject Management (`frmGestiondesProfs`, `frmGestiondesEmployees`, `frmGestiondesMatier`, `frmGestionNiveaumatier`)
 - Management of subjects (*Matière*) and education levels (*Niveau*).
 - Instructor (*Professeur*) profiles linked to specific teaching subjects.
-- Employee account administration.
+- Employee account administration with parameterized update/delete handlers.
 
 ### 👥 4. Group Assignment & Student Allocation (`frmraaf`)
 - Multi-tier cascading dropdowns for Subject ➔ Level ➔ Instructor ➔ Group filtering.
@@ -56,15 +59,17 @@ The system automates student registration, academic timetable generation, teache
 school-management-system-csharp/
 ├── prj_ForYou.sln                    # Visual Studio Solution File
 ├── README.md                         # Project Documentation
+├── Database_Setup.sql                # Complete SQL Server Database Setup Script
+├── .gitignore                        # Git Version Control Exclusion Rules
 └── prj_ForYou/                       # Main C# WinForms Project Folder
     ├── App.config                    # Connection Strings & App Configuration
     ├── prj_ForYou.csproj             # C# Project File
-    ├── MemberGlobal.cs               # Database Helper Utility & Static Methods
+    ├── MemberGlobal.cs               # Central Database Helper Utility & Parameterized Query Handlers
     ├── Program.cs                    # Application Entry Point
     ├── DS.xsd / DS.Designer.cs       # Typed DataSet Schema for Database Binding
     ├── CR.rpt / CR.cs                # Crystal Reports Attendance Template
     ├── FrmMenu.cs                    # Main Modern Dashboard Navigation Form
-    ├── frmLogIn.cs                   # Login Window
+    ├── frmLogIn.cs                   # Parameterized Login Window
     ├── frm_Inscription_dun_eleve.cs  # Student Inscription Form
     ├── frmraaf.cs                    # Student-Group Assignment Form
     ├── frmGestiondesProfs.cs         # Teacher Management Form
@@ -117,9 +122,15 @@ The application relies on Microsoft SQL Server (`DB_Support_School`). Main relat
    git clone https://github.com/Bilyz26/school-management-system-csharp.git
    ```
 
-2. **Database Configuration:**
-   - Create a SQL Server database named `DB_Support_School`.
-   - Update the connection string in `prj_ForYou/App.config` and `prj_ForYou/MemberGlobal.cs`:
+2. **Database Initialization:**
+   - Run **`Database_Setup.sql`** in SQL Server Management Studio (SSMS) or via command line:
+     ```bash
+     sqlcmd -S . -i Database_Setup.sql
+     ```
+   - This automatically creates the `DB_Support_School` database, all 10 relational tables, foreign key constraints, and seeds default admin credentials (`admin` / `admin123`).
+
+3. **Database Connection Configuration:**
+   - Update the connection string in `prj_ForYou/App.config` if your SQL Server instance uses a custom server name:
      ```xml
      <connectionStrings>
          <add name="prj_ForYou.Properties.Settings.DB_Support_SchoolConnectionString"
@@ -128,9 +139,9 @@ The application relies on Microsoft SQL Server (`DB_Support_School`). Main relat
      </connectionStrings>
      ```
 
-3. **Build & Run:**
+4. **Build & Run:**
    - Open `prj_ForYou.sln` in Visual Studio.
-   - Restore dependencies and build the solution (`Ctrl + Shift + B`).
+   - Build the solution (`Ctrl + Shift + B`).
    - Run the project (`F5`).
 
 ---
