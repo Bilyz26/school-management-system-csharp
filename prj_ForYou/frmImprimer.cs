@@ -37,6 +37,13 @@ namespace prj_ForYou
                 cmbmatier.DataSource = dt;
                 cmbmatier.ValueMember = "idmat";
             }
+
+            DataTable dtAnnee = MemberGlobal.rechercher("select * from Annee");
+            if (dtAnnee != null && dtAnnee.Rows.Count != 0)
+            {
+                cmbannee.DataSource = dtAnnee;
+                cmbannee.ValueMember = "annee";
+            }
         }
 
         private void cmbmatier_SelectedIndexChanged(object sender, EventArgs e)
@@ -80,6 +87,13 @@ namespace prj_ForYou
             Niveau = cmbniveau.Text;
             prof = cmbnomprof.Text;
             Annee = cmbannee.Text;
+
+            if (string.IsNullOrWhiteSpace(groupe) || string.IsNullOrWhiteSpace(prof) || string.IsNullOrWhiteSpace(Annee))
+            {
+                MemberGlobal.messageBox(new frmMessagboxFaile(), "Veuillez sélectionner tous les critères du rapport.");
+                return;
+            }
+
             frmAbsence f = new frmAbsence();
             f.Show();
         }
