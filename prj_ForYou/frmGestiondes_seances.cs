@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -342,7 +342,7 @@ namespace prj_ForYou
                     if (dt.Rows.Count == 0)
                     {
 
-                        string dimanche = string.Format("insert into seance values('{0}',{1},'{2}','{3}','{4}','{5}')", cmbnomgrp.Text, cmbannee.Text, cmbnomprof.Text, cbDimanche.Text, mtxtHFDimanche.Text, mtxtHFDimanche.Text);
+                        string dimanche = string.Format("insert into seance values('{0}',{1},'{2}','{3}','{4}','{5}')", cmbnomgrp.Text, cmbannee.Text, cmbnomprof.Text, cbDimanche.Text, mtxtHDimanche.Text, mtxtHFDimanche.Text);
                         lstQuery.Add(dimanche);
                         lstdaysDelete.Add(cbDimanche.Text);
 

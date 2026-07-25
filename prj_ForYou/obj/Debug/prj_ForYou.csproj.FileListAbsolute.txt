@@ -203,3 +203,43 @@ C:\Users\bilal\OneDrive\Bureau\prj_ForYou\prj_ForYou\bin\Debug\CrystalDecisions.
 C:\Users\bilal\OneDrive\Bureau\prj_ForYou\prj_ForYou\obj\Debug\prj_ForYou.exe.manifest
 C:\Users\bilal\OneDrive\Bureau\prj_ForYou\prj_ForYou\obj\Debug\prj_ForYou.application
 C:\Users\bilal\OneDrive\Bureau\prj_ForYou\prj_ForYou\obj\Debug\prj_ForYou.csproj.CopyComplete
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\prj_ForYou.exe.config
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\prj_ForYou.exe.manifest
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\prj_ForYou.application
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\prj_ForYou.exe
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\prj_ForYou.pdb
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\mscorlib.dll
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\fr\mscorlib.resources.dll
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\normidna.nlp
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\normnfc.nlp
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\normnfd.nlp
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\normnfkc.nlp
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\bin\Debug\normnfkd.nlp
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.csprojResolveAssemblyReference.cache
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmAbsence.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.Frmafichage.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmAide.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmCreationNouveauGroupe.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmExplorer.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmExplorerpaiment.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmfinannce.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmGestiondesEmployees.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmGestiondesMatier.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmGestiondesProfs.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmGestiondes_seances.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmGestionNiveaumatier.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmImprimer.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmLogIn.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.FrmMenu.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmMessagboxFaile.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmModif_Delete_Seance.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmMssageboxSucces.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmPaiement.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frmraaf.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.frm_Inscription_dun_eleve.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.Properties.Resources.resources
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.csproj.GenerateResource.Cache
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.exe.manifest
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.application
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.exe
+C:\Users\bilal\OneDrive\Bureau\Karrier projecte\school-management-system-csharp\prj_ForYou\obj\Debug\prj_ForYou.pdb

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -407,7 +407,7 @@ namespace prj_ForYou
         private void btnimpression_MouseLeave(object sender, EventArgs e)
         {
             if (btnimpression.BackColor == Color.White)
-                btnFrmIncription.ForeColor = Color.FromArgb(51, 51, 76);
+                btnimpression.ForeColor = Color.FromArgb(51, 51, 76);
 
         }
 

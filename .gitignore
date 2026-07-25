@@ -1,0 +1,24 @@
+## Visual Studio Files & Folders
+.vs/
+bin/
+obj/
+*.user
+*.aps
+*.pch
+*.vsix
+*.suo
+*.userosv
+*.sln.docstates
+*.pfx
+
+## Build Results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+## Windows Temp Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
